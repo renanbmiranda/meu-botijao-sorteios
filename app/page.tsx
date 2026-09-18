@@ -60,7 +60,7 @@ export default function Home() {
           <span className="bg-emerald-500/10 text-emerald-400 text-xs font-semibold px-3 py-1 rounded-full uppercase tracking-wider border border-emerald-500/20">
             Sistema de Sorteios
           </span>
-          <h1 className="text-3xl font-extrabold mt-3 tracking-tight">Meu Botijão Sorteios</h1>
+          <h1 className="text-3xl font-extrabold mt-3 tracking-tight">Rainha Sorteios</h1>
           <p className="text-slate-400 text-sm mt-1">Insira o código do bilhete para validar o prêmio</p>
         </div>
 
