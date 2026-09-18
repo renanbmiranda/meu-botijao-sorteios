@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
 import { ReciboTermico } from '@/components/ReciboTermico';
 
 interface CodigoItem {
@@ -23,21 +24,24 @@ export default function AdminPage() {
   const [loteRecente, setLoteRecente] = useState<string[]>([]);
   const [itemSelecionado, setItemSelecionado] = useState<CodigoItem | null>(null);
 
-  const carregarDados = async () => {
-    try {
-      const res = await fetch('/api/admin');
-      const data = await res.json();
-      setStats(data.stats);
-      setUltimos(data.ultimos);
-    } catch (err) {
-      console.error('Erro ao carregar painel', err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
-    carregarDados();
+    const carregarDados = async () => {
+      try {
+        const res = await fetch('/api/admin');
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) {
+          throw new Error(data.error || 'Erro ao carregar o painel.');
+        }
+        setStats(data.stats);
+        setUltimos(data.ultimos);
+      } catch (error) {
+        console.error('Erro ao carregar painel', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    void carregarDados();
   }, []);
 
   const handleGerarLote = async (e: React.FormEvent) => {
@@ -49,15 +53,15 @@ export default function AdminPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ prefixo, quantidade }),
       });
-      const data = await res.json();
+      const data = await res.json().catch(() => ({}));
       if (res.ok) {
         setLoteRecente(data.loteGerado);
-        carregarDados();
+        window.location.reload();
         alert(data.message);
       } else {
         alert(data.error);
       }
-    } catch (err) {
+    } catch {
       alert('Erro ao conectar com o servidor.');
     } finally {
       setGerando(false);
@@ -95,9 +99,9 @@ export default function AdminPage() {
             <h1 className="text-2xl font-bold tracking-tight">Painel Administrativo</h1>
             <p className="text-slate-400 text-sm">Gerenciamento, Sorteios e Impressão Térmica (GoldenTec GT-710)</p>
           </div>
-          <a href="/" className="bg-slate-800 hover:bg-slate-700 border border-slate-700 px-4 py-2 rounded-xl text-sm font-medium transition">
+          <Link href="/" className="bg-slate-800 hover:bg-slate-700 border border-slate-700 px-4 py-2 rounded-xl text-sm font-medium transition">
             ← Voltar ao Balcão
-          </a>
+          </Link>
         </div>
 
         {/* Cards de Estatísticas */}

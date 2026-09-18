@@ -1,13 +1,22 @@
 import { NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import { prisma } from '@/lib/prisma';
 
 export async function POST(request: Request) {
   try {
-    const { prefixo = 'GLP', quantidade = 50 } = await request.json();
+    let body: { prefixo?: unknown; quantidade?: unknown };
 
-    if (quantidade <= 0 || quantidade > 1000) {
+    try {
+      body = await request.json();
+    } catch {
+      return NextResponse.json({ error: 'Corpo da requisição inválido.' }, { status: 400 });
+    }
+
+    const prefixo = typeof body.prefixo === 'string' && body.prefixo.trim()
+      ? body.prefixo.trim().toUpperCase()
+      : 'GLP';
+    const quantidade = body.quantidade === undefined ? 50 : Number(body.quantidade);
+
+    if (!Number.isInteger(quantidade) || quantidade <= 0 || quantidade > 1000) {
       return NextResponse.json({ error: 'A quantidade deve ser entre 1 e 1000 por lote.' }, { status: 400 });
     }
 
@@ -30,7 +39,7 @@ export async function POST(request: Request) {
       const numeroAtual = proximoNumero + i;
       // Formata com 2 dígitos se for menor que 100 (ex: 01, 02...), ou mantém o tamanho ideal
       const numeroFormatado = numeroAtual < 100 ? numeroAtual.toString().padStart(2, '0') : numeroAtual.toString();
-      const codigoStr = `${prefixo.toUpperCase()}-${numeroFormatado}`;
+      const codigoStr = `${prefixo}-${numeroFormatado}`;
       
       novosCodigos.push({
         codigo: codigoStr,
@@ -45,7 +54,7 @@ export async function POST(request: Request) {
           data: item,
         });
         inseridos++;
-      } catch (e) {
+      } catch {
         // Ignora duplicados se houver conflito
       }
     }

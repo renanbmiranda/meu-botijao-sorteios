@@ -3,11 +3,22 @@
 import { useState } from 'react';
 import { ReciboTermico } from '@/components/ReciboTermico';
 
+interface ResultadoValidacao {
+  codigo: string;
+  cliente: string | null;
+  createdAt: string;
+}
+
 export default function Home() {
   const [codigo, setCodigo] = useState('');
   const [cliente, setCliente] = useState('');
   const [loading, setLoading] = useState(false);
-  const [resultado, setResultado] = useState<{ success?: boolean; message?: string; error?: string; data?: any } | null>(null);
+  const [resultado, setResultado] = useState<{
+    success?: boolean;
+    message?: string;
+    error?: string;
+    data?: ResultadoValidacao;
+  } | null>(null);
 
   const handleValidar = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -23,7 +34,7 @@ export default function Home() {
         body: JSON.stringify({ codigo, cliente }),
       });
 
-      const data = await res.json();
+      const data = await res.json().catch(() => ({}));
 
       if (!res.ok) {
         setResultado({ error: data.error || 'Ocorreu um erro.' });
@@ -32,7 +43,7 @@ export default function Home() {
         setCodigo('');
         setCliente('');
       }
-    } catch (err) {
+    } catch {
       setResultado({ error: 'Falha na comunicação com o servidor.' });
     } finally {
       setLoading(false);

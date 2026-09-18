@@ -1,15 +1,25 @@
 import { NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import { prisma } from '@/lib/prisma';
 
 // POST: Valida e resgata um código
 export async function POST(request: Request) {
   try {
-    const { codigo, cliente } = await request.json();
+    let body: { codigo?: unknown; cliente?: unknown };
 
-    if (!codigo) {
+    try {
+      body = await request.json();
+    } catch {
+      return NextResponse.json({ error: 'Corpo da requisição inválido.' }, { status: 400 });
+    }
+
+    const { codigo, cliente } = body;
+
+    if (typeof codigo !== 'string' || !codigo.trim()) {
       return NextResponse.json({ error: 'Código não informado.' }, { status: 400 });
+    }
+
+    if (cliente !== undefined && cliente !== null && typeof cliente !== 'string') {
+      return NextResponse.json({ error: 'Nome do cliente inválido.' }, { status: 400 });
     }
 
     const codigoLimpo = codigo.trim().toUpperCase();
@@ -31,18 +41,29 @@ export async function POST(request: Request) {
     }
 
     // Atualiza o código como utilizado (resgatado)
-    const atualizado = await prisma.codigo.update({
-      where: { id: registro.id },
+    const atualizado = await prisma.codigo.updateMany({
+      where: { id: registro.id, status: false },
       data: {
         status: true,
-        cliente: cliente ? cliente.trim() : 'Cliente Balcão',
+        cliente: cliente && cliente.trim() ? cliente.trim() : 'Cliente Balcão',
       },
+    });
+
+    if (atualizado.count === 0) {
+      return NextResponse.json(
+        { error: 'Este código já foi resgatado por outro atendimento.' },
+        { status: 409 }
+      );
+    }
+
+    const registroAtualizado = await prisma.codigo.findUniqueOrThrow({
+      where: { id: registro.id },
     });
 
     return NextResponse.json({
       success: true,
       message: 'Código validado e resgatado com sucesso!',
-      data: atualizado,
+      data: registroAtualizado,
     });
   } catch (error) {
     console.error('Erro na API de validação:', error);

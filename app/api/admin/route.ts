@@ -1,7 +1,5 @@
 import { NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import { prisma } from '@/lib/prisma';
 
 export async function GET() {
   try {
@@ -18,7 +16,7 @@ export async function GET() {
       stats: { total, resgatados, disponiveis },
       ultimos,
     });
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: 'Erro ao buscar dados do painel.' }, { status: 500 });
   }
 }
