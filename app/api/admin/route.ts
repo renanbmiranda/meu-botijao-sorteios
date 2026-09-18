@@ -1,7 +1,12 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { getAdminSessionFromRequest, isValidAdminSession } from '@/lib/admin-auth';
 
-export async function GET() {
+export async function GET(request: Request) {
+  if (!isValidAdminSession(getAdminSessionFromRequest(request))) {
+    return NextResponse.json({ error: 'Não autenticado.' }, { status: 401 });
+  }
+
   try {
     const total = await prisma.codigo.count();
     const resgatados = await prisma.codigo.count({ where: { status: true } });

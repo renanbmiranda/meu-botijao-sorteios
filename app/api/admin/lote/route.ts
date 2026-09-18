@@ -1,7 +1,12 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { getAdminSessionFromRequest, isValidAdminSession } from '@/lib/admin-auth';
 
 export async function POST(request: Request) {
+  if (!isValidAdminSession(getAdminSessionFromRequest(request))) {
+    return NextResponse.json({ error: 'Não autenticado.' }, { status: 401 });
+  }
+
   try {
     let body: { prefixo?: unknown; quantidade?: unknown };
 

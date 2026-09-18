@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { ReciboTermico } from '@/components/ReciboTermico';
 
 interface CodigoItem {
@@ -13,6 +14,7 @@ interface CodigoItem {
 }
 
 export default function AdminPage() {
+  const router = useRouter();
   const [stats, setStats] = useState({ total: 0, resgatados: 0, disponiveis: 0 });
   const [ultimos, setUltimos] = useState<CodigoItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -23,6 +25,11 @@ export default function AdminPage() {
   const [gerando, setGerando] = useState(false);
   const [loteRecente, setLoteRecente] = useState<string[]>([]);
   const [itemSelecionado, setItemSelecionado] = useState<CodigoItem | null>(null);
+
+  const handleLogout = async () => {
+    await fetch('/api/admin/auth', { method: 'DELETE' });
+    router.replace('/admin/login');
+  };
 
   useEffect(() => {
     const carregarDados = async () => {
@@ -99,9 +106,14 @@ export default function AdminPage() {
             <h1 className="text-2xl font-bold tracking-tight">Painel Administrativo</h1>
             <p className="text-slate-400 text-sm">Gerenciamento, Sorteios e Impressão Térmica (GoldenTec GT-710)</p>
           </div>
-          <Link href="/" className="bg-slate-800 hover:bg-slate-700 border border-slate-700 px-4 py-2 rounded-xl text-sm font-medium transition">
-            ← Voltar ao Balcão
-          </Link>
+          <div className="flex gap-2">
+            <Link href="/" className="bg-slate-800 hover:bg-slate-700 border border-slate-700 px-4 py-2 rounded-xl text-sm font-medium transition">
+              ← Voltar ao Balcão
+            </Link>
+            <button onClick={handleLogout} className="bg-rose-950/60 hover:bg-rose-900 border border-rose-800 px-4 py-2 rounded-xl text-sm font-medium transition">
+              Sair
+            </button>
+          </div>
         </div>
 
         {/* Cards de Estatísticas */}

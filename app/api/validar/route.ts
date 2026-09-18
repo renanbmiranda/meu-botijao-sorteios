@@ -30,7 +30,7 @@ export async function POST(request: Request) {
     });
 
     if (!registro) {
-      return NextResponse.json({ error: 'Código inválido ou não encontrado.' }, { status: 404 });
+      return NextResponse.json({ error: 'Código inválido ou não encontrado.' }, { status: 400 });
     }
 
     if (registro.status) {
