@@ -4,20 +4,19 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "prisma generate && prisma db push && next build",
+    "build": "prisma generate && next build",
     "start": "next start",
     "lint": "next lint",
-    "importar": "npx ts-node scripts/importar.ts",
-    "postinstall": "prisma skills sync || exit 0"
+    "importar": "npx ts-node scripts/importar.ts"
   },
   "dependencies": {
+    "@prisma/client": "^5.19.0",
     "csv-parse": "^7.0.2",
     "next": "16.3.5",
     "react": "19.2.8",
     "react-dom": "19.2.8"
   },
   "devDependencies": {
-    "@prisma/client": "^5.19.0",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
