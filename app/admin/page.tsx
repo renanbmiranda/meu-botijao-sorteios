@@ -17,6 +17,7 @@ export default function AdminPage() {
   const router = useRouter();
   const [stats, setStats] = useState({ total: 0, resgatados: 0, disponiveis: 0 });
   const [ultimos, setUltimos] = useState<CodigoItem[]>([]);
+  const [todosCodigos, setTodosCodigos] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   
   // Estados para geração de lote
@@ -25,6 +26,7 @@ export default function AdminPage() {
   const [gerando, setGerando] = useState(false);
   const [loteRecente, setLoteRecente] = useState<string[]>([]);
   const [itemSelecionado, setItemSelecionado] = useState<CodigoItem | null>(null);
+  const [impressaoTodos, setImpressaoTodos] = useState(false);
 
   const handleLogout = async () => {
     await fetch('/api/admin/auth', { method: 'DELETE' });
@@ -41,6 +43,7 @@ export default function AdminPage() {
         }
         setStats(data.stats);
         setUltimos(data.ultimos);
+        setTodosCodigos(data.todos.map((item: { codigo: string }) => item.codigo));
       } catch (error) {
         console.error('Erro ao carregar painel', error);
       } finally {
@@ -49,6 +52,21 @@ export default function AdminPage() {
     };
 
     void carregarDados();
+  }, []);
+
+  useEffect(() => {
+    const interceptarImpressao = (event: KeyboardEvent) => {
+      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'p') {
+        event.preventDefault();
+        setItemSelecionado(null);
+        setLoteRecente([]);
+        setImpressaoTodos(true);
+        setTimeout(() => window.print(), 100);
+      }
+    };
+
+    window.addEventListener('keydown', interceptarImpressao);
+    return () => window.removeEventListener('keydown', interceptarImpressao);
   }, []);
 
   const handleGerarLote = async (e: React.FormEvent) => {
@@ -77,6 +95,7 @@ export default function AdminPage() {
 
   const imprimirLoteRecente = () => {
     if (loteRecente.length === 0) return;
+    setImpressaoTodos(false);
     setTimeout(() => {
       window.print();
     }, 100);
@@ -84,6 +103,7 @@ export default function AdminPage() {
 
   const dispararImpressaoIndividual = (item: CodigoItem) => {
     setLoteRecente([]); // limpa lote para imprimir só o cupom individual
+    setImpressaoTodos(false);
     setItemSelecionado(item);
     setTimeout(() => {
       window.print();
@@ -95,9 +115,7 @@ export default function AdminPage() {
       {/* Elemento de Impressão Térmica Oculto */}
       <ReciboTermico
         codigo={itemSelecionado?.codigo}
-        cliente={itemSelecionado?.cliente}
-        data={itemSelecionado ? new Date(itemSelecionado.createdAt).toLocaleString('pt-BR') : undefined}
-        loteCodigos={loteRecente}
+        loteCodigos={impressaoTodos ? todosCodigos : loteRecente}
       />
 
       <div className="max-w-5xl mx-auto print:hidden">

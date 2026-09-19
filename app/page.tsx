@@ -60,8 +60,6 @@ export default function Home() {
       {resultado?.data && (
         <ReciboTermico
           codigo={resultado.data.codigo}
-          cliente={resultado.data.cliente}
-          data={new Date(resultado.data.createdAt).toLocaleString('pt-BR')}
         />
       )}
 

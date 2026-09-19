@@ -2,19 +2,17 @@
 
 interface ReciboProps {
   codigo?: string;
-  cliente?: string | null;
-  data?: string;
   loteCodigos?: string[];
 }
 
-export function ReciboTermico({ codigo, cliente, data, loteCodigos }: ReciboProps) {
+export function ReciboTermico({ codigo, loteCodigos }: ReciboProps) {
   if (loteCodigos && loteCodigos.length > 0) {
     return (
       <div className="hidden print:block print:w-[72mm] print:text-black print:bg-white print:p-0 font-mono text-xs leading-tight">
         {loteCodigos.map((cod, index) => (
           <div 
             key={index} 
-            className="p-3 mb-2 border-b-2 border-dashed border-black page-break-after-always flex flex-col items-center text-center"
+            className="p-3 mb-2 border-b-2 border-dashed border-black break-after-page flex flex-col items-center text-center"
           >
             <div className="font-bold text-sm tracking-wide">RAINHA</div>
             <div className="text-[10px] mb-1">Cidade: Vigia</div>
@@ -39,8 +37,6 @@ export function ReciboTermico({ codigo, cliente, data, loteCodigos }: ReciboProp
         <div className="border-t border-black w-full my-1"></div>
         <div className="text-[10px] uppercase">Comprovante de Resgate</div>
         <div className="text-lg font-bold my-1">{codigo}</div>
-        <div className="text-[10px]">Cliente: {cliente || 'Balcão'}</div>
-        <div className="text-[10px]">Data: {data}</div>
         <div className="border-t border-dashed border-gray-400 w-full my-1"></div>
         <div className="text-[9px]">Obrigado pela preferência!</div>
       </div>

@@ -16,10 +16,15 @@ export async function GET(request: Request) {
       orderBy: { createdAt: 'desc' },
       take: 50,
     });
+    const todos = await prisma.codigo.findMany({
+      orderBy: { createdAt: 'asc' },
+      select: { codigo: true },
+    });
 
     return NextResponse.json({
       stats: { total, resgatados, disponiveis },
       ultimos,
+      todos,
     });
   } catch {
     return NextResponse.json({ error: 'Erro ao buscar dados do painel.' }, { status: 500 });
