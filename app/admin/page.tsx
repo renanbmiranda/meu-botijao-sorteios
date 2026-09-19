@@ -17,8 +17,13 @@ export default function AdminPage() {
   const router = useRouter();
   const [stats, setStats] = useState({ total: 0, resgatados: 0, disponiveis: 0 });
   const [ultimos, setUltimos] = useState<CodigoItem[]>([]);
-  const [todosCodigos, setTodosCodigos] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
+  const [pagina, setPagina] = useState(1);
+  const [totalPaginas, setTotalPaginas] = useState(1);
+  const [totalFiltrado, setTotalFiltrado] = useState(0);
+  const [busca, setBusca] = useState('');
+  const [buscaAplicada, setBuscaAplicada] = useState('');
+  const [atualizacao, setAtualizacao] = useState(0);
   
   // Estados para geração de lote
   const [prefixo, setPrefixo] = useState('GLP');
@@ -26,7 +31,6 @@ export default function AdminPage() {
   const [gerando, setGerando] = useState(false);
   const [loteRecente, setLoteRecente] = useState<string[]>([]);
   const [itemSelecionado, setItemSelecionado] = useState<CodigoItem | null>(null);
-  const [impressaoTodos, setImpressaoTodos] = useState(false);
 
   const handleLogout = async () => {
     await fetch('/api/admin/auth', { method: 'DELETE' });
@@ -36,14 +40,17 @@ export default function AdminPage() {
   useEffect(() => {
     const carregarDados = async () => {
       try {
-        const res = await fetch('/api/admin');
+        const parametros = new URLSearchParams({ pagina: String(pagina) });
+        if (buscaAplicada) parametros.set('busca', buscaAplicada);
+        const res = await fetch(`/api/admin?${parametros.toString()}`);
         const data = await res.json().catch(() => ({}));
         if (!res.ok) {
           throw new Error(data.error || 'Erro ao carregar o painel.');
         }
         setStats(data.stats);
-        setUltimos(data.ultimos);
-        setTodosCodigos(data.todos.map((item: { codigo: string }) => item.codigo));
+        setUltimos(data.codigos);
+        setTotalPaginas(data.paginacao.totalPaginas);
+        setTotalFiltrado(data.paginacao.total);
       } catch (error) {
         console.error('Erro ao carregar painel', error);
       } finally {
@@ -52,22 +59,7 @@ export default function AdminPage() {
     };
 
     void carregarDados();
-  }, []);
-
-  useEffect(() => {
-    const interceptarImpressao = (event: KeyboardEvent) => {
-      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'p') {
-        event.preventDefault();
-        setItemSelecionado(null);
-        setLoteRecente([]);
-        setImpressaoTodos(true);
-        setTimeout(() => window.print(), 100);
-      }
-    };
-
-    window.addEventListener('keydown', interceptarImpressao);
-    return () => window.removeEventListener('keydown', interceptarImpressao);
-  }, []);
+  }, [pagina, buscaAplicada, atualizacao]);
 
   const handleGerarLote = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -81,6 +73,8 @@ export default function AdminPage() {
       const data = await res.json().catch(() => ({}));
       if (res.ok) {
         setLoteRecente(data.loteGerado);
+        setPagina(1);
+        setAtualizacao((atual) => atual + 1);
         alert(data.message);
       } else {
         alert(data.error);
@@ -94,7 +88,6 @@ export default function AdminPage() {
 
   const imprimirLoteRecente = () => {
     if (loteRecente.length === 0) return;
-    setImpressaoTodos(false);
     setTimeout(() => {
       window.print();
     }, 100);
@@ -102,11 +95,16 @@ export default function AdminPage() {
 
   const dispararImpressaoIndividual = (item: CodigoItem) => {
     setLoteRecente([]); // limpa lote para imprimir só o cupom individual
-    setImpressaoTodos(false);
     setItemSelecionado(item);
     setTimeout(() => {
       window.print();
     }, 100);
+  };
+
+  const pesquisarCodigos = (e: React.FormEvent) => {
+    e.preventDefault();
+    setPagina(1);
+    setBuscaAplicada(busca.trim());
   };
 
   return (
@@ -114,7 +112,7 @@ export default function AdminPage() {
       {/* Elemento de Impressão Térmica Oculto */}
       <ReciboTermico
         codigo={itemSelecionado?.codigo}
-        loteCodigos={impressaoTodos ? todosCodigos : loteRecente}
+        loteCodigos={loteRecente}
       />
 
       <div className="admin-interface max-w-5xl mx-auto print:hidden">
@@ -199,8 +197,23 @@ export default function AdminPage() {
 
         {/* Tabela de Registros */}
         <div className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow">
-          <div className="p-6 border-b border-slate-800">
-            <h2 className="text-lg font-semibold">Últimos Bilhetes Registrados</h2>
+          <div className="p-6 border-b border-slate-800 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+            <div>
+              <h2 className="text-lg font-semibold">Códigos Gerados</h2>
+              <p className="text-sm text-slate-400 mt-1">{totalFiltrado} código(s) encontrado(s), 50 por página</p>
+            </div>
+            <form onSubmit={pesquisarCodigos} className="flex gap-2 w-full md:w-auto">
+              <input
+                type="search"
+                value={busca}
+                onChange={(e) => setBusca(e.target.value)}
+                placeholder="Pesquisar código, lote ou cliente"
+                className="w-full md:w-72 bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-white placeholder-slate-500"
+              />
+              <button type="submit" className="bg-slate-700 hover:bg-slate-600 px-4 py-2.5 rounded-xl text-sm font-semibold transition">
+                Buscar
+              </button>
+            </form>
           </div>
           
           {loading ? (
@@ -233,19 +246,38 @@ export default function AdminPage() {
                       <td className="p-4 text-slate-300">{item.cliente || '-'}</td>
                       <td className="p-4 text-slate-400">{new Date(item.createdAt).toLocaleString('pt-BR')}</td>
                       <td className="p-4 text-right">
-                        {item.status && (
-                          <button
-                            onClick={() => dispararImpressaoIndividual(item)}
-                            className="bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs px-3 py-1.5 rounded-lg border border-slate-700 transition"
-                          >
-                            🖨️ Reimprimir
-                          </button>
-                        )}
+                        <button
+                          onClick={() => dispararImpressaoIndividual(item)}
+                          className="bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs px-3 py-1.5 rounded-lg border border-slate-700 transition"
+                        >
+                          🖨️ Reimprimir
+                        </button>
                       </td>
                     </tr>
                   ))}
                 </tbody>
               </table>
+            </div>
+          )}
+          {!loading && totalPaginas > 1 && (
+            <div className="p-4 border-t border-slate-800 flex items-center justify-between gap-4">
+              <button
+                type="button"
+                disabled={pagina === 1}
+                onClick={() => setPagina((atual) => Math.max(1, atual - 1))}
+                className="bg-slate-800 hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed px-4 py-2 rounded-lg text-sm font-medium transition"
+              >
+                ← Anterior
+              </button>
+              <span className="text-sm text-slate-400">Página {pagina} de {totalPaginas}</span>
+              <button
+                type="button"
+                disabled={pagina === totalPaginas}
+                onClick={() => setPagina((atual) => Math.min(totalPaginas, atual + 1))}
+                className="bg-slate-800 hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed px-4 py-2 rounded-lg text-sm font-medium transition"
+              >
+                Próxima →
+              </button>
             </div>
           )}
         </div>
