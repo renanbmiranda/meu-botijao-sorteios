@@ -81,7 +81,6 @@ export default function AdminPage() {
       const data = await res.json().catch(() => ({}));
       if (res.ok) {
         setLoteRecente(data.loteGerado);
-        window.location.reload();
         alert(data.message);
       } else {
         alert(data.error);
@@ -189,9 +188,9 @@ export default function AdminPage() {
                   type="button"
                   onClick={imprimirLoteRecente}
                   className="bg-amber-600 hover:bg-amber-500 text-white font-semibold px-4 py-2.5 rounded-xl transition shadow flex items-center gap-1"
-                  title="Imprimir lote gerado na GoldenTec"
+                  title="Imprimir lote gerado em uma folha A4"
                 >
-                  🖨️ Imprimir Lote
+                  🖨️ Imprimir Lote em A4
                 </button>
               )}
             </div>

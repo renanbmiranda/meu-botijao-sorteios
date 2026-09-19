@@ -8,11 +8,11 @@ interface ReciboProps {
 export function ReciboTermico({ codigo, loteCodigos }: ReciboProps) {
   if (loteCodigos && loteCodigos.length > 0) {
     return (
-      <div className="hidden print:block print:w-[72mm] print:text-black print:bg-white print:p-0 font-mono text-xs leading-tight">
+      <div className="lote-impressao-a4 hidden print:grid print:text-black print:bg-white font-mono text-xs leading-tight">
         {loteCodigos.map((cod, index) => (
           <div 
             key={index} 
-            className="p-3 mb-2 border-b-2 border-dashed border-black break-after-page flex flex-col items-center text-center"
+            className="canhoto-lote flex flex-col items-center text-center"
           >
             <div className="font-bold text-sm tracking-wide">RAINHA</div>
             <div className="text-[10px] mb-1">Cidade: Vigia</div>
