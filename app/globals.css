@@ -36,6 +36,16 @@ body {
 }
 
 @media print {
+  .admin-page {
+    min-height: 0 !important;
+    padding: 0 !important;
+    background: #fff !important;
+  }
+
+  .admin-interface {
+    display: none !important;
+  }
+
   .lote-impressao-a4 {
     width: 100%;
     grid-template-columns: repeat(4, minmax(0, 1fr));

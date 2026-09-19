@@ -110,14 +110,14 @@ export default function AdminPage() {
   };
 
   return (
-    <main className="min-h-screen bg-slate-950 text-white p-8">
+    <main className="admin-page min-h-screen bg-slate-950 text-white p-8">
       {/* Elemento de Impressão Térmica Oculto */}
       <ReciboTermico
         codigo={itemSelecionado?.codigo}
         loteCodigos={impressaoTodos ? todosCodigos : loteRecente}
       />
 
-      <div className="max-w-5xl mx-auto print:hidden">
+      <div className="admin-interface max-w-5xl mx-auto print:hidden">
         <div className="flex justify-between items-center mb-8">
           <div>
             <h1 className="text-2xl font-bold tracking-tight">Painel Administrativo</h1>
