@@ -12,15 +12,20 @@ export async function GET(request: Request) {
     const paginaInformada = Number(searchParams.get('pagina') || '1');
     const pagina = Number.isInteger(paginaInformada) ? Math.max(1, paginaInformada) : 1;
     const busca = searchParams.get('busca')?.trim() || '';
+    const statusFiltro = searchParams.get('status');
     const porPagina = 50;
-    const where = busca
-      ? {
-          OR: [
-            { codigo: { contains: busca, mode: 'insensitive' as const } },
-            { cliente: { contains: busca, mode: 'insensitive' as const } },
-          ],
-        }
-      : undefined;
+    const where = {
+      ...(busca
+        ? {
+            OR: [
+              { codigo: { contains: busca, mode: 'insensitive' as const } },
+              { cliente: { contains: busca, mode: 'insensitive' as const } },
+            ],
+          }
+        : {}),
+      ...(statusFiltro === 'disponiveis' ? { status: false } : {}),
+      ...(statusFiltro === 'resgatados' ? { status: true } : {}),
+    };
 
     const total = await prisma.codigo.count();
     const resgatados = await prisma.codigo.count({ where: { status: true } });

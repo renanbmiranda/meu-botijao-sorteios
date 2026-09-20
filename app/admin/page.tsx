@@ -23,6 +23,7 @@ export default function AdminPage() {
   const [totalFiltrado, setTotalFiltrado] = useState(0);
   const [busca, setBusca] = useState('');
   const [buscaAplicada, setBuscaAplicada] = useState('');
+  const [statusFiltro, setStatusFiltro] = useState<'disponiveis' | 'resgatados' | null>(null);
   const [atualizacao, setAtualizacao] = useState(0);
   
   // Estados para geração de lote
@@ -42,6 +43,7 @@ export default function AdminPage() {
       try {
         const parametros = new URLSearchParams({ pagina: String(pagina) });
         if (buscaAplicada) parametros.set('busca', buscaAplicada);
+        if (statusFiltro) parametros.set('status', statusFiltro);
         const res = await fetch(`/api/admin?${parametros.toString()}`);
         const data = await res.json().catch(() => ({}));
         if (!res.ok) {
@@ -59,7 +61,7 @@ export default function AdminPage() {
     };
 
     void carregarDados();
-  }, [pagina, buscaAplicada, atualizacao]);
+  }, [pagina, buscaAplicada, statusFiltro, atualizacao]);
 
   const handleGerarLote = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -107,6 +109,11 @@ export default function AdminPage() {
     setBuscaAplicada(busca.trim());
   };
 
+  const filtrarPorStatus = (status: 'disponiveis' | 'resgatados') => {
+    setPagina(1);
+    setStatusFiltro((atual) => atual === status ? null : status);
+  };
+
   return (
     <main className="admin-page min-h-screen bg-slate-950 text-white p-8">
       {/* Elemento de Impressão Térmica Oculto */}
@@ -139,11 +146,25 @@ export default function AdminPage() {
           </div>
           <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow">
             <p className="text-xs font-medium text-emerald-400 uppercase tracking-wider">Disponíveis / Não Usados</p>
-            <p className="text-3xl font-extrabold mt-2 text-emerald-400">{stats.disponiveis}</p>
+            <button
+              type="button"
+              onClick={() => filtrarPorStatus('disponiveis')}
+              aria-pressed={statusFiltro === 'disponiveis'}
+              className="block w-full text-left"
+            >
+              <span className="block text-3xl font-extrabold mt-2 text-emerald-400">{stats.disponiveis}</span>
+            </button>
           </div>
           <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow">
             <p className="text-xs font-medium text-amber-400 uppercase tracking-wider">Resgatados / Usados</p>
-            <p className="text-3xl font-extrabold mt-2 text-amber-400">{stats.resgatados}</p>
+            <button
+              type="button"
+              onClick={() => filtrarPorStatus('resgatados')}
+              aria-pressed={statusFiltro === 'resgatados'}
+              className="block w-full text-left"
+            >
+              <span className="block text-3xl font-extrabold mt-2 text-amber-400">{stats.resgatados}</span>
+            </button>
           </div>
         </div>
 
