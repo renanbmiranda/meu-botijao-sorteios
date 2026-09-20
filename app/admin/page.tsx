@@ -126,7 +126,7 @@ export default function AdminPage() {
         <div className="flex justify-between items-center mb-8">
           <div>
             <h1 className="text-2xl font-bold tracking-tight">Painel Administrativo</h1>
-            <p className="text-slate-400 text-sm">Gerenciamento, Sorteios e Impressão Térmica (GoldenTec GT-710)</p>
+            <p className="text-slate-400 text-sm">Gerenciamento, Sorteios e Impressão em folha A4</p>
           </div>
           <div className="flex gap-2">
             <Link href="/" className="bg-slate-800 hover:bg-slate-700 border border-slate-700 px-4 py-2 rounded-xl text-sm font-medium transition">
