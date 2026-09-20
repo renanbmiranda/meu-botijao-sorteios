@@ -94,7 +94,7 @@ export default function Home() {
               type="text"
               value={codigo}
               onChange={(e) => setCodigo(e.target.value)}
-              placeholder="Ex: GAS-1001"
+              placeholder="Ex: GLP-1000"
               required
               className="text-lg font-mono tracking-wider uppercase"
             />
