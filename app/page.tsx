@@ -2,6 +2,10 @@
 
 import { useState } from 'react';
 import { ReciboTermico } from '@/components/ReciboTermico';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { ArrowRight, CheckCircle2, Printer, ShieldCheck } from 'lucide-react';
 
 interface ResultadoValidacao {
   codigo: string;
@@ -55,7 +59,7 @@ export default function Home() {
   };
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-950 to-slate-900 text-white flex flex-col items-center justify-center p-4">
+    <main className="brand-atmosphere brand-grid min-h-screen text-white flex flex-col items-center justify-center p-4">
       {/* Componente oculto que sai apenas na impressora térmica */}
       {resultado?.data && (
         <ReciboTermico
@@ -63,47 +67,48 @@ export default function Home() {
         />
       )}
 
-      <div className="w-full max-w-md bg-slate-800/80 backdrop-blur border border-slate-700 rounded-2xl shadow-2xl p-8 print:hidden">
-        
-        <div className="text-center mb-8">
-          <span className="bg-emerald-500/10 text-emerald-400 text-xs font-semibold px-3 py-1 rounded-full uppercase tracking-wider border border-emerald-500/20">
-            Sistema de Sorteios
-          </span>
-          <h1 className="text-3xl font-extrabold mt-3 tracking-tight">Rainha Sorteios</h1>
-          <p className="text-slate-400 text-sm mt-1">Insira o código do bilhete para validar o prêmio</p>
-        </div>
-
+      <Card className="w-full max-w-md border-white/15 bg-slate-950/55 print:hidden">
+        <CardHeader className="pb-3 text-center">
+          <div className="mx-auto mb-2 flex h-14 w-14 items-center justify-center rounded-2xl bg-cyan-300 text-slate-950 shadow-lg shadow-cyan-400/30">
+            <ShieldCheck className="h-7 w-7" />
+          </div>
+          <span className="text-xs font-semibold uppercase tracking-[0.2em] text-cyan-200">Rainha do Gás</span>
+          <CardTitle className="mt-2 text-3xl">Validar bilhete</CardTitle>
+          <CardDescription>Confirme o código para registrar o resgate do prêmio.</CardDescription>
+        </CardHeader>
+        <CardContent>
         <form onSubmit={handleValidar} className="space-y-4">
           <div>
-            <label className="block text-xs font-medium text-slate-300 uppercase mb-1">Nome do Cliente (Opcional)</label>
-            <input
+            <label className="mb-1.5 block text-xs font-medium uppercase tracking-wide text-slate-300">Nome do cliente <span className="text-slate-500">(opcional)</span></label>
+            <Input
               type="text"
               value={cliente}
               onChange={(e) => setCliente(e.target.value)}
               placeholder="Ex: João da Silva"
-              className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-slate-300 uppercase mb-1">Código do Bilhete</label>
-            <input
+            <label className="mb-1.5 block text-xs font-medium uppercase tracking-wide text-slate-300">Código do bilhete</label>
+            <Input
               type="text"
               value={codigo}
               onChange={(e) => setCodigo(e.target.value)}
               placeholder="Ex: GAS-1001"
               required
-              className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-lg font-mono tracking-wider uppercase text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition"
+              className="text-lg font-mono tracking-wider uppercase"
             />
           </div>
 
-          <button
+          <Button
             type="submit"
             disabled={loading}
-            className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-3.5 rounded-xl shadow-lg shadow-emerald-600/30 transition duration-200 disabled:opacity-50"
+            variant="success"
+            size="lg"
+            className="w-full"
           >
-            {loading ? 'Validando...' : 'Verificar e Resgatar'}
-          </button>
+            {loading ? 'Validando...' : <><CheckCircle2 className="h-4 w-4" /> Verificar e resgatar</>}
+          </Button>
         </form>
 
         {resultado && (
@@ -115,23 +120,25 @@ export default function Home() {
             <p className="font-medium text-center">{resultado.message || resultado.error}</p>
             
             {resultado.success && (
-              <button
+                <Button
                 onClick={handleImprimir}
-                className="mt-3 w-full bg-slate-700 hover:bg-slate-600 text-white text-xs font-semibold py-2 rounded-lg transition border border-slate-600 flex items-center justify-center gap-2"
+                  variant="secondary"
+                  size="sm"
+                  className="mt-3 w-full"
               >
-                🖨️ Imprimir Comprovante Térmico
-              </button>
+                  <Printer className="h-4 w-4" /> Imprimir comprovante térmico
+                </Button>
             )}
           </div>
         )}
 
-        <div className="mt-8 text-center border-t border-slate-700/60 pt-4">
-          <a href="/admin" className="text-xs text-slate-400 hover:text-emerald-400 transition">
-            Acessar Painel Administrativo →
+        <div className="mt-8 border-t border-white/10 pt-4 text-center">
+          <a href="/admin" className="inline-flex items-center gap-1 text-xs text-slate-400 transition hover:text-cyan-200">
+            Acessar painel administrativo <ArrowRight className="h-3 w-3" />
           </a>
         </div>
-
-      </div>
+        </CardContent>
+      </Card>
     </main>
   );
 }

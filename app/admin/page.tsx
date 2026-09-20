@@ -4,6 +4,10 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { ReciboTermico } from '@/components/ReciboTermico';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Card } from '@/components/ui/card';
+import { ArrowLeft, LogOut, Printer, Search } from 'lucide-react';
 
 interface CodigoItem {
   id: string;
@@ -115,36 +119,32 @@ export default function AdminPage() {
   };
 
   return (
-    <main className="admin-page min-h-screen bg-slate-950 text-white p-8">
+    <main className="admin-page brand-atmosphere min-h-screen text-white p-4 md:p-8">
       {/* Elemento de Impressão Térmica Oculto */}
       <ReciboTermico
         codigo={itemSelecionado?.codigo}
         loteCodigos={loteRecente}
       />
 
-      <div className="admin-interface max-w-5xl mx-auto print:hidden">
+      <div className="admin-interface max-w-6xl mx-auto print:hidden">
         <div className="flex justify-between items-center mb-8">
           <div>
             <h1 className="text-2xl font-bold tracking-tight">Painel Administrativo</h1>
-            <p className="text-slate-400 text-sm">Gerenciamento, Sorteios e Impressão Térmica (GoldenTec GT-710)</p>
+            <p className="text-cyan-100/60 text-sm">Gerenciamento de bilhetes e lotes</p>
           </div>
           <div className="flex gap-2">
-            <Link href="/" className="bg-slate-800 hover:bg-slate-700 border border-slate-700 px-4 py-2 rounded-xl text-sm font-medium transition">
-              ← Voltar ao Balcão
-            </Link>
-            <button onClick={handleLogout} className="bg-rose-950/60 hover:bg-rose-900 border border-rose-800 px-4 py-2 rounded-xl text-sm font-medium transition">
-              Sair
-            </button>
+            <Button asChild variant="outline" size="sm"><Link href="/"><ArrowLeft className="h-4 w-4" /> Voltar</Link></Button>
+            <Button onClick={handleLogout} variant="danger" size="sm"><LogOut className="h-4 w-4" /> Sair</Button>
           </div>
         </div>
 
         {/* Cards de Estatísticas */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow">
+          <Card className="border-white/10 bg-slate-950/55 p-6">
             <p className="text-xs font-medium text-slate-400 uppercase tracking-wider">Total de Códigos</p>
             <p className="text-3xl font-extrabold mt-2 text-white">{stats.total}</p>
-          </div>
-          <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow">
+          </Card>
+          <Card className="border-emerald-300/20 bg-slate-950/55 p-6">
             <p className="text-xs font-medium text-emerald-400 uppercase tracking-wider">Disponíveis / Não Usados</p>
             <button
               type="button"
@@ -154,8 +154,8 @@ export default function AdminPage() {
             >
               <span className="block text-3xl font-extrabold mt-2 text-emerald-400">{stats.disponiveis}</span>
             </button>
-          </div>
-          <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow">
+          </Card>
+          <Card className="border-amber-300/20 bg-slate-950/55 p-6">
             <p className="text-xs font-medium text-amber-400 uppercase tracking-wider">Resgatados / Usados</p>
             <button
               type="button"
@@ -165,75 +165,73 @@ export default function AdminPage() {
             >
               <span className="block text-3xl font-extrabold mt-2 text-amber-400">{stats.resgatados}</span>
             </button>
-          </div>
+          </Card>
         </div>
 
         {/* Bloco de Gerador de Lotes */}
-        <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow mb-8">
+        <Card className="mb-8 border-white/10 bg-slate-950/60 p-6">
           <h2 className="text-lg font-semibold mb-4">Gerar Novo Lote de Bilhetes</h2>
           <form onSubmit={handleGerarLote} className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
             <div>
               <label className="block text-xs font-medium text-slate-400 uppercase mb-1">Prefixo do Código</label>
-              <input
+              <Input
                 type="text"
                 value={prefixo}
                 onChange={(e) => setPrefixo(e.target.value)}
                 required
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-white uppercase"
+                className="uppercase"
               />
             </div>
             <div>
               <label className="block text-xs font-medium text-slate-400 uppercase mb-1">Quantidade</label>
-              <input
+              <Input
                 type="number"
                 min="1"
                 max="500"
                 value={quantidade}
                 onChange={(e) => setQuantidade(Number(e.target.value))}
                 required
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-white"
               />
             </div>
             <div className="flex gap-2">
-              <button
+              <Button
                 type="submit"
                 disabled={gerando}
-                className="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-2.5 rounded-xl transition shadow"
+                variant="success"
+                className="flex-1"
               >
                 {gerando ? 'Gerando...' : 'Gerar Lote'}
-              </button>
+              </Button>
               {loteRecente.length > 0 && (
-                <button
+                <Button
                   type="button"
                   onClick={imprimirLoteRecente}
-                  className="bg-amber-600 hover:bg-amber-500 text-white font-semibold px-4 py-2.5 rounded-xl transition shadow flex items-center gap-1"
+                  variant="secondary"
                   title="Imprimir lote gerado em uma folha A4"
                 >
-                  🖨️ Imprimir Lote em A4
-                </button>
+                  <Printer className="h-4 w-4" /> Imprimir em A4
+                </Button>
               )}
             </div>
           </form>
-        </div>
+        </Card>
 
         {/* Tabela de Registros */}
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow">
+        <Card className="overflow-hidden border-white/10 bg-slate-950/65">
           <div className="p-6 border-b border-slate-800 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
             <div>
               <h2 className="text-lg font-semibold">Códigos Gerados</h2>
               <p className="text-sm text-slate-400 mt-1">{totalFiltrado} código(s) encontrado(s), 50 por página</p>
             </div>
             <form onSubmit={pesquisarCodigos} className="flex gap-2 w-full md:w-auto">
-              <input
+              <Input
                 type="search"
                 value={busca}
                 onChange={(e) => setBusca(e.target.value)}
                 placeholder="Pesquisar código, lote ou cliente"
-                className="w-full md:w-72 bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-white placeholder-slate-500"
+                className="w-full md:w-72"
               />
-              <button type="submit" className="bg-slate-700 hover:bg-slate-600 px-4 py-2.5 rounded-xl text-sm font-semibold transition">
-                Buscar
-              </button>
+              <Button type="submit" variant="secondary"><Search className="h-4 w-4" /> Buscar</Button>
             </form>
           </div>
           
@@ -267,12 +265,13 @@ export default function AdminPage() {
                       <td className="p-4 text-slate-300">{item.cliente || '-'}</td>
                       <td className="p-4 text-slate-400">{new Date(item.createdAt).toLocaleString('pt-BR')}</td>
                       <td className="p-4 text-right">
-                        <button
+                        <Button
                           onClick={() => dispararImpressaoIndividual(item)}
-                          className="bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs px-3 py-1.5 rounded-lg border border-slate-700 transition"
+                          variant="outline"
+                          size="sm"
                         >
-                          🖨️ Reimprimir
-                        </button>
+                          <Printer className="h-3.5 w-3.5" /> Reimprimir
+                        </Button>
                       </td>
                     </tr>
                   ))}
@@ -282,26 +281,28 @@ export default function AdminPage() {
           )}
           {!loading && totalPaginas > 1 && (
             <div className="p-4 border-t border-slate-800 flex items-center justify-between gap-4">
-              <button
+              <Button
                 type="button"
                 disabled={pagina === 1}
                 onClick={() => setPagina((atual) => Math.max(1, atual - 1))}
-                className="bg-slate-800 hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed px-4 py-2 rounded-lg text-sm font-medium transition"
+                variant="secondary"
+                size="sm"
               >
                 ← Anterior
-              </button>
+              </Button>
               <span className="text-sm text-slate-400">Página {pagina} de {totalPaginas}</span>
-              <button
+              <Button
                 type="button"
                 disabled={pagina === totalPaginas}
                 onClick={() => setPagina((atual) => Math.min(totalPaginas, atual + 1))}
-                className="bg-slate-800 hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed px-4 py-2 rounded-lg text-sm font-medium transition"
+                variant="secondary"
+                size="sm"
               >
                 Próxima →
-              </button>
+              </Button>
             </div>
           )}
-        </div>
+        </Card>
 
       </div>
     </main>

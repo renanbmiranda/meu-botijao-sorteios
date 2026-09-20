@@ -3,6 +3,10 @@
 import { FormEvent, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { ArrowLeft, LockKeyhole, LogIn } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
 
 export default function AdminLoginPage() {
   const router = useRouter();
@@ -39,53 +43,60 @@ export default function AdminLoginPage() {
   }
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-950 text-white flex items-center justify-center p-4">
-      <section className="w-full max-w-md rounded-2xl border border-slate-700 bg-slate-900/90 p-8 shadow-2xl">
-        <div className="mb-8 text-center">
-          <span className="text-xs font-semibold uppercase tracking-widest text-emerald-400">Área restrita</span>
-          <h1 className="mt-3 text-3xl font-bold">Painel administrativo</h1>
-          <p className="mt-2 text-sm text-slate-400">Entre para gerenciar os bilhetes e lotes.</p>
-        </div>
+    <main className="brand-atmosphere brand-grid min-h-screen text-white flex items-center justify-center p-4">
+      <Card className="w-full max-w-md border-white/15 bg-slate-950/65">
+        <CardHeader className="text-center">
+          <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-2xl bg-cyan-300 text-slate-950 shadow-lg shadow-cyan-400/30">
+            <LockKeyhole className="h-7 w-7" />
+          </div>
+          <span className="text-xs font-semibold uppercase tracking-[0.2em] text-cyan-200">Área restrita</span>
+          <CardTitle className="mt-2 text-3xl">Painel administrativo</CardTitle>
+          <CardDescription className="mt-2">Entre para gerenciar os bilhetes e lotes.</CardDescription>
+        </CardHeader>
+        <CardContent>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <label className="block text-sm text-slate-300">
             Usuário
-            <input
+            <Input
               type="text"
               value={username}
               onChange={(event) => setUsername(event.target.value)}
               autoComplete="username"
               required
-              className="mt-1 w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/30"
+              className="mt-1"
             />
           </label>
           <label className="block text-sm text-slate-300">
             Senha
-            <input
+            <Input
               type="password"
               value={password}
               onChange={(event) => setPassword(event.target.value)}
               autoComplete="current-password"
               required
-              className="mt-1 w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/30"
+              className="mt-1"
             />
           </label>
 
           {error && <p className="rounded-xl border border-rose-500/40 bg-rose-950/50 p-3 text-center text-sm text-rose-300">{error}</p>}
 
-          <button
+          <Button
             type="submit"
             disabled={loading}
-            className="w-full rounded-xl bg-emerald-600 py-3 font-semibold transition hover:bg-emerald-500 disabled:opacity-50"
+            variant="success"
+            size="lg"
+            className="w-full"
           >
-            {loading ? 'Entrando...' : 'Entrar no painel'}
-          </button>
+            {loading ? 'Entrando...' : <><LogIn className="h-4 w-4" /> Entrar no painel</>}
+          </Button>
         </form>
 
-        <Link href="/" className="mt-6 block text-center text-sm text-slate-400 hover:text-emerald-400">
-          Voltar ao balcão
+        <Link href="/" className="mt-6 flex items-center justify-center gap-1 text-sm text-slate-400 hover:text-cyan-200">
+          <ArrowLeft className="h-4 w-4" /> Voltar ao balcão
         </Link>
-      </section>
+        </CardContent>
+      </Card>
     </main>
   );
 }
